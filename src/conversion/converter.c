@@ -68,24 +68,6 @@ static BigNum* binaryToDecimal(const char* binary) {
     return result;
 }
 
-/* Helper: Invert binary string (0→1, 1→0) */
-static char* invertBinaryString(const char* binary) {
-    char* inverted;
-    size_t len;
-    size_t i;
-
-    len = strlen(binary);
-    inverted = (char*)malloc(len + 1);
-    if (inverted == NULL) return NULL;
-
-    for (i = 0; i < len; i++) {
-        inverted[i] = (binary[i] == '0') ? '1' : '0';
-    }
-    inverted[len] = '\0';
-
-    return inverted;
-}
-
 /**
  * @brief Parses a decimal string to BigNum
  */
@@ -102,7 +84,6 @@ BigNum* parseDecimal(const char* str) {
 BigNum* parseBinary(const char* str) {
     const char* digits;
     BigNum* result;
-    bool isNegative;
 
     if (str == NULL || strlen(str) < 3) return NULL;
 
@@ -116,42 +97,9 @@ BigNum* parseBinary(const char* str) {
     /* Empty after prefix */
     if (*digits == '\0') return NULL;
 
-    /* Detect sign from leading bit */
-    isNegative = (digits[0] == '1');
-
-    if (!isNegative) {
-        /* Positive: standard binary conversion */
-        result = binaryToDecimal(digits);
-    } else {
-        /* Negative: two's complement conversion */
-        char* inverted;
-        BigNum* temp;
-        BigNum* one;
-
-        /* Invert all bits */
-        inverted = invertBinaryString(digits);
-        if (inverted == NULL) return NULL;
-
-        /* Convert inverted to decimal */
-        temp = binaryToDecimal(inverted);
-        free(inverted);
-        if (temp == NULL) return NULL;
-
-        /* Add 1 (completing two's complement) */
-        one = createBigNum("1");
-        if (one == NULL) {
-            destroyBigNum(temp);
-            return NULL;
-        }
-
-        result = add(temp, one);
-        destroyBigNum(temp);
-        destroyBigNum(one);
-        if (result == NULL) return NULL;
-
-        /* Make negative */
-        result->isNegative = true;
-    }
+    /* Binary input is always parsed as unsigned positive number */
+    /* Two's complement is only used for OUTPUT of negative numbers */
+    result = binaryToDecimal(digits);
 
     return result;
 }
@@ -166,7 +114,6 @@ BigNum* parseHexadecimal(const char* str) {
     size_t binLen;
     size_t i;
     BigNum* result;
-    int leadingVal;
 
     if (str == NULL || strlen(str) < 3) return NULL;
 
@@ -203,41 +150,10 @@ BigNum* parseHexadecimal(const char* str) {
     }
     binary[binLen] = '\0';
 
-    /* Detect sign from leading hex digit (>= 8 means negative) */
-    leadingVal = hexCharToValue(digits[0]);
-
-    if (leadingVal < 8) {
-        /* Positive: standard conversion */
-        result = binaryToDecimal(binary);
-        free(binary);
-    } else {
-        /* Negative: two's complement conversion */
-        char* inverted;
-        BigNum* temp;
-        BigNum* one;
-
-        inverted = invertBinaryString(binary);
-        free(binary);
-        if (inverted == NULL) return NULL;
-
-        temp = binaryToDecimal(inverted);
-        free(inverted);
-        if (temp == NULL) return NULL;
-
-        one = createBigNum("1");
-        if (one == NULL) {
-            destroyBigNum(temp);
-            return NULL;
-        }
-
-        result = add(temp, one);
-        destroyBigNum(temp);
-        destroyBigNum(one);
-        if (result == NULL) return NULL;
-
-        /* Make negative */
-        result->isNegative = true;
-    }
+    /* Hex input is always parsed as unsigned positive number */
+    /* Two's complement is only used for OUTPUT of negative numbers */
+    result = binaryToDecimal(binary);
+    free(binary);
 
     return result;
 }
