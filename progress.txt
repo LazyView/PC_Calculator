@@ -1,0 +1,63 @@
+=== Calculator Project Progress ===
+Last Updated: 2025-11-13
+
+Completed Tasks
+---------------
+[✓] Analyzed reference implementation (pc_release/)
+[✓] Designed new architecture with 8 modules + main
+[✓] Created folder structure (src/, include/ with subdirectories)
+[✓] Created skeleton header files with Doxygen documentation
+[✓] Created skeleton source files with TODOs
+[✓] Created Makefile (Linux)
+[✓] Created Makefile.win (Windows)
+
+Module Status
+-------------
+core/bignum:          Not Started - Core BigNum structure and utilities
+core/bignum_ops:      Not Started - Basic arithmetic operations (+, -, *, /, %)
+core/bignum_math:     Not Started - Advanced operations (^, !)
+conversion/converter: Not Started - Input format parsing (bin, hex, dec → BigNum)
+conversion/formatter: Not Started - Output formatting (BigNum → bin, hex, dec)
+expression/parser:    Not Started - Expression parsing (tokenization, Shunting Yard)
+expression/evaluator: Not Started - Expression evaluation (postfix processing)
+app/calculator:       Not Started - Application logic and command processing
+app/utils:            Not Started - String utilities and I/O helpers
+main:                 Not Started - Entry point and argument handling
+
+Next Session Plan
+-----------------
+1. Implement utils module first (needed by other modules)
+2. Implement core/bignum module (fundamental data structure)
+3. Implement core/bignum_ops (basic arithmetic)
+4. Test basic operations with simple examples
+
+Architecture Decisions
+----------------------
+- Using decimal string representation internally (simpler than pseudo-hex)
+- Separate input parsing (converter) from output formatting (formatter)
+- Separate expression parsing from evaluation
+- Following Single Responsibility Principle
+- All modules use camelCase naming convention
+- Full Doxygen documentation in headers
+
+Open Questions / Decisions Needed
+----------------------------------
+- Factorial optimization strategy (recursive vs iterative vs tree-based)
+- Division algorithm choice (long division vs binary search)
+- Memory management strategy for intermediate results
+
+Known Issues / TODOs
+--------------------
+- All functions are currently placeholders
+- Need to implement comprehensive error handling
+- Need to add input validation throughout
+- Consider adding unit tests for each module
+
+Design Differences from Reference
+----------------------------------
+✓ Different data structure (decimal vs pseudo-hex)
+✓ Different module names and organization
+✓ Simpler single-number-type approach
+✓ Separated converter/formatter responsibilities
+✓ Separated parser/evaluator responsibilities
+✓ Different function naming conventions

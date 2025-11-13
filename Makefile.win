@@ -1,0 +1,88 @@
+# Makefile for PC Calculator (Windows)
+# ANSI C compliant
+# Use with MinGW: mingw32-make -f Makefile.win
+
+CC = gcc
+CFLAGS = -Wall -Wextra -pedantic -std=c89 -Iinclude
+LDFLAGS =
+TARGET = calc.exe
+
+# Directories
+SRC_DIR = src
+BUILD_DIR = build
+INCLUDE_DIR = include
+
+# Source files by module
+CORE_SRCS = $(SRC_DIR)/core/bignum.c \
+            $(SRC_DIR)/core/bignum_ops.c \
+            $(SRC_DIR)/core/bignum_math.c
+
+CONVERSION_SRCS = $(SRC_DIR)/conversion/converter.c \
+                  $(SRC_DIR)/conversion/formatter.c
+
+EXPRESSION_SRCS = $(SRC_DIR)/expression/parser.c \
+                  $(SRC_DIR)/expression/evaluator.c
+
+APP_SRCS = $(SRC_DIR)/app/calculator.c \
+           $(SRC_DIR)/app/utils.c
+
+MAIN_SRC = $(SRC_DIR)/main.c
+
+# All source files
+SRCS = $(CORE_SRCS) $(CONVERSION_SRCS) $(EXPRESSION_SRCS) $(APP_SRCS) $(MAIN_SRC)
+
+# Object files (place in build directory)
+OBJS = $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
+
+# Default target
+all: $(TARGET)
+
+# Create build directory structure (Windows commands)
+$(BUILD_DIR):
+	if not exist $(BUILD_DIR)\core mkdir $(BUILD_DIR)\core
+	if not exist $(BUILD_DIR)\conversion mkdir $(BUILD_DIR)\conversion
+	if not exist $(BUILD_DIR)\expression mkdir $(BUILD_DIR)\expression
+	if not exist $(BUILD_DIR)\app mkdir $(BUILD_DIR)\app
+
+# Link object files to create executable
+$(TARGET): $(BUILD_DIR) $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $(TARGET)
+
+# Compile source files to object files
+$(BUILD_DIR)/core/bignum.o: $(SRC_DIR)/core/bignum.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/core/bignum_ops.o: $(SRC_DIR)/core/bignum_ops.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/core/bignum_math.o: $(SRC_DIR)/core/bignum_math.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/conversion/converter.o: $(SRC_DIR)/conversion/converter.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/conversion/formatter.o: $(SRC_DIR)/conversion/formatter.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/expression/parser.o: $(SRC_DIR)/expression/parser.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/expression/evaluator.o: $(SRC_DIR)/expression/evaluator.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/app/calculator.o: $(SRC_DIR)/app/calculator.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/app/utils.o: $(SRC_DIR)/app/utils.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/main.o: $(SRC_DIR)/main.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# Clean build artifacts (Windows commands)
+clean:
+	if exist $(BUILD_DIR) rmdir /s /q $(BUILD_DIR)
+	if exist $(TARGET) del $(TARGET)
+
+# Phony targets
+.PHONY: all clean

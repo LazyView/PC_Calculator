@@ -1,3 +1,20 @@
-pc_release
+# Build artifacts
+build/
+*.o
+*.exe
+calc
+
+# Documentation and reference (not needed in repo)
 chybovnik.txt
 sw2025-03.pdf
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
