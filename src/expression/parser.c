@@ -428,7 +428,7 @@ Token* infixToPostfix(const char* expr) {
         else if (current.type == TOKEN_RPAREN) {
             while (!isOperatorStackEmpty(opStack) && peekOperator(opStack) != '(') {
                 char op = popOperator(opStack);
-                postfix[postfixCount].type = TOKEN_OPERATOR;
+                postfix[postfixCount].type = (op == '~') ? TOKEN_UNARY_MINUS : TOKEN_OPERATOR;
                 postfix[postfixCount].value = (char*)malloc(2);
                 postfix[postfixCount].value[0] = op;
                 postfix[postfixCount].value[1] = '\0';
@@ -474,7 +474,7 @@ Token* infixToPostfix(const char* expr) {
                 }
 
                 topOp = popOperator(opStack);
-                postfix[postfixCount].type = TOKEN_OPERATOR;
+                postfix[postfixCount].type = (topOp == '~') ? TOKEN_UNARY_MINUS : TOKEN_OPERATOR;
                 postfix[postfixCount].value = (char*)malloc(2);
                 postfix[postfixCount].value[0] = topOp;
                 postfix[postfixCount].value[1] = '\0';
