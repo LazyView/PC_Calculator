@@ -54,6 +54,12 @@ static char* addUnsigned(const char* a, const char* b) {
         carry = sum / 10;
     }
 
+    /* Shift result to start at position 0 */
+    /* After loop, k is at position before first digit, so digits start at k+1 */
+    if (k >= 0) {
+        memmove(result, result + k + 1, strlen(result + k + 1) + 1);
+    }
+
     removeLeadingZeros(result);
     return result;
 }
