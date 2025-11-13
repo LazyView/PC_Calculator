@@ -49,6 +49,50 @@ Known Issues / TODOs
 [Issue or improvement needed]
 
 
+# Design Documentation - CRITICAL
+
+**Maintain `analysis.txt` throughout development:**
+
+When making ANY significant design decision, immediately document it in `analysis.txt`:
+
+1. **What was decided** - The specific choice made
+2. **Why this approach** - Rationale and benefits
+3. **Alternatives considered** - What else was evaluated
+4. **Why alternatives were rejected** - Specific reasons
+
+**Examples of decisions to document:**
+- Algorithm choices (e.g., "Why long division vs binary search division")
+- Data structure decisions (e.g., "Why decimal strings vs pseudo-hex")
+- Memory management strategies
+- Error handling approaches
+- Module organization rationale
+- Two's complement handling strategy
+- Any trade-off between simplicity and performance
+
+**Format in analysis.txt:**
+```
+X.Y Decision Title
+------------------
+DECISION: [What was chosen]
+RATIONALE: [Why this is the best choice]
+ALTERNATIVE CONSIDERED: [Other option]
+WHY REJECTED: [Specific reasons]
+```
+
+**This is ESSENTIAL for:**
+- Writing the final documentation report
+- Justifying implementation choices
+- Understanding the codebase later
+- Academic integrity (showing original thinking)
+
+**Update analysis.txt:**
+- Immediately when making design decisions
+- Before implementing complex algorithms
+- When encountering difficult technical choices
+- At the end of each major module completion
+
+The student will use analysis.txt as the PRIMARY SOURCE for writing their project documentation. Make it comprehensive!
+
 # Your Role and Approach
 
 **Phase 1 - Architecture & Planning (Detailed Mode):**
