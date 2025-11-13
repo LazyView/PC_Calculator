@@ -4,10 +4,6 @@ build/
 *.exe
 calc
 
-# Documentation and reference (not needed in repo)
-chybovnik.txt
-sw2025-03.pdf
-
 # Editor and IDE files
 .vscode/
 .idea/
