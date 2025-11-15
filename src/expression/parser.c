@@ -72,18 +72,22 @@ static bool isOperatorStackEmpty(OperatorStack* stack) {
 
 /**
  * @brief Gets operator precedence
- * Precedence levels: ! > ~ (unary minus) > ^  > * / % > + -
+ * Precedence levels: ! > ^ > ~ (unary minus) = * / % > + -
+ *
+ * Note: Unary minus has same precedence as multiplicative operators.
+ * This ensures that -2^4 is parsed as -(2^4) = -16, not (-2)^4 = 16.
+ * The key is that ^ has higher precedence, so it binds tighter than unary minus.
  */
 int getOperatorPrecedence(char op) {
     switch (op) {
         case '!': return 5;  /* Highest (postfix) */
-        case '~': return 4;  /* Unary minus (prefix) */
-        case '^': return 3;  /* Power */
+        case '^': return 4;  /* Power (right-associative) */
+        case '~': return 3;  /* Unary minus (prefix) */
         case '*':
         case '/':
-        case '%': return 2;  /* Multiplicative */
+        case '%': return 3;  /* Multiplicative */
         case '+':
-        case '-': return 1;  /* Additive (lowest) */
+        case '-': return 2;  /* Additive (lowest) */
         default: return -1;
     }
 }

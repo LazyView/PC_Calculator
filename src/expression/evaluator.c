@@ -252,6 +252,14 @@ EvalResult evaluatePostfix(Token* tokens) {
                     result = modulo(left, right);
                     break;
                 case '^':
+                    /* Check for 0^(negative) which is division by zero */
+                    if (isZero(left) && isNegative(right)) {
+                        destroyBigNum(left);
+                        destroyBigNum(right);
+                        destroyBigNumStack(stack);
+                        evalResult.error = EVAL_ERROR_DIVISION_BY_ZERO;
+                        return evalResult;
+                    }
                     result = power(left, right);
                     break;
                 default:

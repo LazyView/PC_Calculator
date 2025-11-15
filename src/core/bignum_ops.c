@@ -232,9 +232,10 @@ BigNum* multiply(const BigNum* a, const BigNum* b) {
  * @brief Divides first BigNum by second (integer division)
  */
 BigNum* divide(const BigNum* a, const BigNum* b) {
-    BigNum *quotient, *current, *temp, *one;
+    BigNum *quotient, *current, *temp, *one, *absB;
     char* qDigits;
     size_t lenA, i, qLen;
+    bool resultNegative;
 
     if (a == NULL || b == NULL) return NULL;
 
@@ -247,13 +248,25 @@ BigNum* divide(const BigNum* a, const BigNum* b) {
     /* Divisor larger than dividend */
     if (isLessAbs(a, b)) return createBigNumZero();
 
+    /* Determine result sign */
+    resultNegative = (a->isNegative != b->isNegative);
+
+    /* Create absolute value of b for division loop */
+    absB = copyBigNum(b);
+    if (absB == NULL) return NULL;
+    absB->isNegative = false;
+
     lenA = strlen(a->digits);
     qDigits = (char*)malloc(lenA + 1);
-    if (qDigits == NULL) return NULL;
+    if (qDigits == NULL) {
+        destroyBigNum(absB);
+        return NULL;
+    }
 
     current = createBigNumZero();
     if (current == NULL) {
         free(qDigits);
+        destroyBigNum(absB);
         return NULL;
     }
 
@@ -261,12 +274,13 @@ BigNum* divide(const BigNum* a, const BigNum* b) {
     if (one == NULL) {
         free(qDigits);
         destroyBigNum(current);
+        destroyBigNum(absB);
         return NULL;
     }
 
     qLen = 0;
 
-    /* Long division */
+    /* Long division (working with absolute values) */
     for (i = 0; i < lenA; i++) {
         char digitStr[2];
         BigNum* digit;
@@ -280,6 +294,7 @@ BigNum* divide(const BigNum* a, const BigNum* b) {
             free(qDigits);
             destroyBigNum(current);
             destroyBigNum(one);
+            destroyBigNum(absB);
             return NULL;
         }
 
@@ -293,10 +308,10 @@ BigNum* divide(const BigNum* a, const BigNum* b) {
             destroyBigNum(digit);
         }
 
-        /* Count how many times b fits into current */
+        /* Count how many times |b| fits into current */
         count = 0;
-        while (!isLessAbs(current, b)) {
-            temp = subtract(current, b);
+        while (!isLess(current, absB)) {
+            temp = subtract(current, absB);
             destroyBigNum(current);
             current = temp;
             count++;
@@ -308,6 +323,7 @@ BigNum* divide(const BigNum* a, const BigNum* b) {
     qDigits[qLen] = '\0';
     destroyBigNum(current);
     destroyBigNum(one);
+    destroyBigNum(absB);
 
     removeLeadingZeros(qDigits);
 
@@ -318,7 +334,7 @@ BigNum* divide(const BigNum* a, const BigNum* b) {
     }
 
     quotient->digits = qDigits;
-    quotient->isNegative = (a->isNegative != b->isNegative) && strcmp(qDigits, "0") != 0;
+    quotient->isNegative = resultNegative && strcmp(qDigits, "0") != 0;
 
     return quotient;
 }

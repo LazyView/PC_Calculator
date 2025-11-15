@@ -317,8 +317,22 @@ char* formatHexadecimal(const BigNum* num) {
         destroyBigNum(abs);
         if (binary == NULL) return NULL;
 
-        /* Pad to multiple of 4 */
+        /* Ensure at least one leading 0 so two's complement gives leading 1 */
         binLen = strlen(binary);
+        if (binary[0] == '1') {
+            char* newBinary = (char*)malloc(binLen + 2);
+            if (newBinary == NULL) {
+                free(binary);
+                return NULL;
+            }
+            newBinary[0] = '0';
+            strcpy(newBinary + 1, binary);
+            free(binary);
+            binary = newBinary;
+            binLen++;
+        }
+
+        /* Pad to multiple of 4 */
         while (binLen % 4 != 0) {
             char* newBinary = (char*)malloc(binLen + 2);
             if (newBinary == NULL) {
