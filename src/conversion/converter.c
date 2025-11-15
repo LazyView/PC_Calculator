@@ -84,6 +84,9 @@ BigNum* parseDecimal(const char* str) {
 BigNum* parseBinary(const char* str) {
     const char* digits;
     BigNum* result;
+    BigNum* msbPower;
+    BigNum* temp;
+    const char* p;
 
     if (str == NULL || strlen(str) < 3) return NULL;
 
@@ -97,11 +100,52 @@ BigNum* parseBinary(const char* str) {
     /* Empty after prefix */
     if (*digits == '\0') return NULL;
 
-    /* Binary input is always parsed as unsigned positive number */
-    /* Two's complement is only used for OUTPUT of negative numbers */
-    result = binaryToDecimal(digits);
+    /* Two's complement interpretation: first bit is sign bit (MSB) */
+    /* If MSB is '1', the number is negative */
 
-    return result;
+    if (digits[0] == '1') {
+        /* Negative number in two's complement */
+        /* Parse remaining bits as unsigned */
+        result = binaryToDecimal(digits + 1);
+        if (result == NULL) return NULL;
+
+        /* Calculate 2^(n-1) where n is total number of bits */
+        /* This is the weight of the MSB (negative in two's complement) */
+        msbPower = createBigNum("1");
+        if (msbPower == NULL) {
+            destroyBigNum(result);
+            return NULL;
+        }
+
+        /* Multiply by 2 for each bit position (n-1 times) */
+        for (p = digits + 1; *p != '\0'; p++) {
+            BigNum* two = createBigNum("2");
+            if (two == NULL) {
+                destroyBigNum(result);
+                destroyBigNum(msbPower);
+                return NULL;
+            }
+            temp = multiply(msbPower, two);
+            destroyBigNum(two);
+            destroyBigNum(msbPower);
+            if (temp == NULL) {
+                destroyBigNum(result);
+                return NULL;
+            }
+            msbPower = temp;
+        }
+
+        /* Subtract MSB power: result = (lower bits) - 2^(n-1) */
+        temp = subtract(result, msbPower);
+        destroyBigNum(result);
+        destroyBigNum(msbPower);
+
+        return temp;
+    } else {
+        /* Positive number (MSB is '0') - parse as unsigned */
+        result = binaryToDecimal(digits);
+        return result;
+    }
 }
 
 /**
@@ -113,6 +157,7 @@ BigNum* parseHexadecimal(const char* str) {
     size_t hexLen;
     size_t binLen;
     size_t i;
+    int firstDigitValue;
     BigNum* result;
 
     if (str == NULL || strlen(str) < 3) return NULL;
@@ -150,10 +195,32 @@ BigNum* parseHexadecimal(const char* str) {
     }
     binary[binLen] = '\0';
 
-    /* Hex input is always parsed as unsigned positive number */
-    /* Two's complement is only used for OUTPUT of negative numbers */
-    result = binaryToDecimal(binary);
-    free(binary);
+    /* Two's complement interpretation based on first hex digit */
+    /* If first digit >= 8, the MSB is 1, so number is negative */
+    firstDigitValue = hexCharToValue(digits[0]);
+
+    if (firstDigitValue >= 8) {
+        /* Negative number - MSB is 1 */
+        /* Parse binary using two's complement (delegate to parseBinary) */
+        /* Create temporary string with "0b" prefix */
+        char* tempBinary = (char*)malloc(binLen + 3);
+        if (tempBinary == NULL) {
+            free(binary);
+            return NULL;
+        }
+        tempBinary[0] = '0';
+        tempBinary[1] = 'b';
+        strcpy(tempBinary + 2, binary);
+        free(binary);
+
+        /* Use parseBinary which now handles two's complement */
+        result = parseBinary(tempBinary);
+        free(tempBinary);
+    } else {
+        /* Positive number - parse as unsigned */
+        result = binaryToDecimal(binary);
+        free(binary);
+    }
 
     return result;
 }

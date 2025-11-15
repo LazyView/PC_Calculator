@@ -1,5 +1,5 @@
 === Calculator Project Progress ===
-Last Updated: 2025-11-13 (Session 3)
+Last Updated: 2025-11-15 (Session 4)
 
 Completed Tasks
 ---------------
@@ -23,6 +23,8 @@ Completed Tasks
 [✓] Created analysis.txt - Design decisions documentation
 [✓] Fixed memory leak in processInput (input string handling)
 [✓] Fixed negative exponent support in power function (Session 3)
+[✓] Fixed binary two's complement input parsing (Session 4)
+[✓] Fixed hexadecimal two's complement input parsing (Session 4)
 
 Module Status
 -------------
@@ -175,8 +177,8 @@ Headers:           ~600 lines
 ---------------------------------
 Grand Total:       ~3557 lines
 
-Session 3 Accomplishments (Current Session)
---------------------------------------------
+Session 3 Accomplishments
+--------------------------
 Fixed critical bug in power function:
 - Added support for negative exponents with integer arithmetic semantics
 - Handles special cases: 1^(-n), (-1)^(-n), |base|>1 with negative exponent
@@ -198,6 +200,65 @@ Code Quality:
 - Proper memory management in new code
 - Clear comments explaining integer arithmetic semantics
 - No compiler warnings or errors
+
+Session 4 Accomplishments (Current Session)
+--------------------------------------------
+CRITICAL BUG FIX: Two's Complement Input Parsing
+
+**Problem Identified:**
+- Binary and hexadecimal inputs were parsed as unsigned only
+- Two's complement was only applied to OUTPUT, not INPUT
+- This caused incorrect results for numbers with MSB=1
+
+**Root Cause:**
+- parseBinary() and parseHexadecimal() ignored the MSB sign bit
+- Comments incorrectly stated "always parsed as unsigned positive number"
+- Did not match reference implementation behavior
+
+**Solution Implemented:**
+Binary Parsing (converter.c:84-149):
+- Check if first bit after "0b" is '1'
+- If MSB=1: Parse as two's complement negative
+  * Calculate 2^(n-1) where n = total bits (MSB weight)
+  * Parse lower bits as unsigned
+  * Result = (lower bits) - (MSB weight)
+- If MSB=0: Parse as unsigned positive (unchanged)
+
+Hexadecimal Parsing (converter.c:154-226):
+- Check if first hex digit is >= 8
+- If first digit >= 8: MSB of that nibble is 1, so negative
+  * Convert hex to binary string
+  * Delegate to parseBinary() which handles two's complement
+- If first digit < 8: Parse as unsigned positive (unchanged)
+
+**Test Results: 7 out of 8 tests now passing:**
+✅ Test 1: -0x0c! = -479001600 (correct)
+✅ Test 2: -0b010^3! = -64 (correct)
+✅ Test 3: -0b10001000 = 120 (was -136, now correct)
+✅ Test 4: 0b100111*4 = -100 (was 156, now correct)
+❓ Test 5: 0x19/0b011 = 8 (expected 5 - needs clarification)
+✅ Test 6: -10%0b011 = -1 (correct)
+✅ Test 7: 315+0b10011100 = 215 (was 471, now correct)
+✅ Test 8: 315-0b10011100 = 415 (was 159, now correct)
+
+**Examples of Fixed Cases:**
+- 0b10001000: Was 136, now correctly -120 (then with unary minus: 120)
+- 0b100111: Was 39, now correctly -25 (so -25*4 = -100)
+- 0b10011100: Was 156, now correctly -100 (so 315+(-100) = 215)
+
+**Documentation Updated:**
+analysis.txt section 4.2 and 4.3:
+- Documented MSB-weighted interpretation algorithm
+- Explained why this is simpler than invert-and-add-1
+- Added examples with calculations
+- Marked as "SESSION 4 UPDATE"
+
+**Code Quality:**
+- Maintained ANSI C89 compliance
+- Proper memory management (all malloc/free balanced)
+- Clear comments explaining two's complement logic
+- No compiler warnings or errors
+- Clean rebuild successful
 
 Remaining Work
 --------------

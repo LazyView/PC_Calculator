@@ -306,44 +306,86 @@ HEXADECIMAL:
 - Leading 0-7: Positive number
 - Leading 8-F: Negative number (two's complement)
 
-4.2 Conversion Strategy: Binary → Decimal
-------------------------------------------
+4.2 Conversion Strategy: Binary → Decimal (INPUT PARSING)
+-----------------------------------------------------------
+**SESSION 4 UPDATE: Fixed to match reference implementation**
+
+DECISION: Use MSB (Most Significant Bit) weighted interpretation
+RATIONALE:
+- Simpler than invert-and-add-1 approach
+- More efficient (no bit manipulation needed)
+- Directly implements two's complement definition
+- Matches reference implementation behavior
+
 ALGORITHM FOR POSITIVE (leading bit = 0):
 1. Standard binary-to-decimal conversion
-2. Result is positive BigNum
+2. Parse all bits with positive weights: b₀×2⁰ + b₁×2¹ + ... + bₙ₋₁×2ⁿ⁻¹
+3. Result is positive BigNum
 
 ALGORITHM FOR NEGATIVE (leading bit = 1):
-1. Recognize it's negative from leading bit
-2. Invert all bits: 0→1, 1→0
-3. Add 1 (two's complement formula)
-4. Convert result to decimal
-5. Make BigNum negative
+1. Recognize it's negative from leading bit (MSB)
+2. Parse lower bits (excluding MSB) as unsigned
+3. Calculate MSB weight: 2^(n-1) where n = total bits
+4. Result = (lower bits value) - (MSB weight)
+5. This gives the correct negative value
+
+TWO'S COMPLEMENT PRINCIPLE:
+- MSB has NEGATIVE weight: -2^(n-1)
+- Other bits have positive weights: 2^(n-2), 2^(n-3), ..., 2¹, 2⁰
+- Value = -bₙ₋₁×2ⁿ⁻¹ + bₙ₋₂×2ⁿ⁻² + ... + b₁×2¹ + b₀×2⁰
 
 EXAMPLE: 0b11 = -1
 1. Leading bit is 1, so negative
-2. Invert: 11 → 00
-3. Add 1: 00 + 1 = 01
-4. Convert: 01₂ = 1₁₀
-5. Result: -1
+2. Lower bits: "1" = 1
+3. Total bits: 2, so MSB weight = 2¹ = 2
+4. Value = 1 - 2 = -1 ✓
 
-4.3 Conversion Strategy: Hexadecimal → Decimal
------------------------------------------------
+EXAMPLE: 0b10001000 = -120
+1. Leading bit is 1, so negative
+2. Lower bits: "0001000" = 8
+3. Total bits: 8, so MSB weight = 2⁷ = 128
+4. Value = 8 - 128 = -120 ✓
+
+EXAMPLE: 0b100111 = -25
+1. Leading bit is 1, so negative
+2. Lower bits: "00111" = 7
+3. Total bits: 6, so MSB weight = 2⁵ = 32
+4. Value = 7 - 32 = -25 ✓
+
+4.3 Conversion Strategy: Hexadecimal → Decimal (INPUT PARSING)
+---------------------------------------------------------------
+**SESSION 4 UPDATE: Fixed to match reference implementation**
+
 ALGORITHM FOR POSITIVE (leading digit 0-7):
 1. Standard hex-to-decimal conversion
 2. Result is positive BigNum
 
 ALGORITHM FOR NEGATIVE (leading digit 8-F):
-1. Recognize it's negative from leading digit
-2. Convert hex to binary (4 bits per hex digit)
-3. Follow binary negative conversion process
-4. Result is negative BigNum
+1. Recognize it's negative from leading hex digit
+2. Leading hex digit ≥ 8 means MSB of that digit is 1
+3. Convert entire hex to binary (4 bits per hex digit)
+4. Apply binary two's complement parsing (section 4.2)
+5. Result is negative BigNum
 
 EXAMPLE: 0xf = -1
-1. Leading digit is F (≥8), so negative
-2. F → 1111 in binary
-3. This is 0b1111
-4. Follow binary negative process
-5. Result: -1
+1. Leading digit is F (= 15, which is ≥ 8), so negative
+2. F → 1111 in binary → "0b1111"
+3. Apply binary parsing: lower bits "111" = 7, MSB weight = 2³ = 8
+4. Result: 7 - 8 = -1 ✓
+
+EXAMPLE: 0x9c (from test case: 0b10011100) = -100
+1. Leading digit is 9 (≥ 8), so negative
+2. 9c → 10011100 in binary → "0b10011100"
+3. Apply binary parsing: lower bits "0011100" = 28, MSB weight = 2⁷ = 128
+4. Result: 28 - 128 = -100 ✓
+
+WHY NOT INVERT-AND-ADD-1?
+ALTERNATIVE CONSIDERED: Traditional two's complement (invert bits, add 1)
+WHY REJECTED:
+- Requires bit manipulation operations on BigNum
+- More complex to implement
+- Slower (requires extra operations)
+- The MSB-weighted approach is mathematically equivalent but simpler
 
 4.4 Conversion Strategy: Decimal → Binary/Hex Output
 -----------------------------------------------------
