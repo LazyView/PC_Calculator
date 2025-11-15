@@ -12,6 +12,73 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Characters allowed in arithmetic expressions */
+#define EXPR_CHARS "0123456789abcdefABCDEFxX!^-*/%+() "
+
+/**
+ * @brief Checks if input looks like an arithmetic expression
+ * @param input The string to check
+ * @return true if it contains expression characters, false otherwise
+ *
+ * An expression must contain at least one:
+ * - Operator: + - * / % ^ !
+ * - Digit: 0-9
+ * - Parenthesis: ( )
+ * - Hex/Binary prefix: 0x 0b
+ *
+ * If it's just letters/underscores without any of these, it's a command.
+ */
+static bool looksLikeExpression(const char* input) {
+    size_t i;
+    bool hasOperator;
+    bool hasDigit;
+    bool hasParens;
+
+    if (input == NULL || *input == '\0') return false;
+
+    hasOperator = false;
+    hasDigit = false;
+    hasParens = false;
+
+    /* Check for expression-specific characters */
+    for (i = 0; input[i] != '\0'; i++) {
+        char c = input[i];
+
+        /* Check for operators */
+        if (c == '+' || c == '-' || c == '*' || c == '/' ||
+            c == '%' || c == '^' || c == '!') {
+            hasOperator = true;
+        }
+
+        /* Check for digits */
+        if (c >= '0' && c <= '9') {
+            hasDigit = true;
+        }
+
+        /* Check for parentheses */
+        if (c == '(' || c == ')') {
+            hasParens = true;
+        }
+    }
+
+    /* An expression must have at least an operator, digit, or parentheses */
+    return (hasOperator || hasDigit || hasParens);
+}
+
+/**
+ * @brief Gets the name of the current output mode
+ * @param mode The output mode
+ * @return String name of the mode
+ */
+static const char* getModeName(OutputMode mode) {
+    switch (mode) {
+        case MODE_DECIMAL:     return "dec";
+        case MODE_BINARY:      return "bin";
+        case MODE_HEXADECIMAL: return "hex";
+        default:               return "dec";
+    }
+}
+
 /**
  * @brief Initializes calculator state
  */
@@ -62,9 +129,17 @@ bool processInput(CalculatorState* state, const char* input) {
         return false;
     }
 
+    /* Command: out (show current output format) */
+    if (strcmp(lower, "out") == 0) {
+        printf("%s\n", getModeName(state->mode));
+        free(inputCopy);
+        return true;
+    }
+
     /* Command: dec (decimal mode) */
     if (strcmp(lower, "dec") == 0) {
         state->mode = MODE_DECIMAL;
+        printf("dec\n");
         free(inputCopy);
         return true;
     }
@@ -72,6 +147,7 @@ bool processInput(CalculatorState* state, const char* input) {
     /* Command: bin (binary mode) */
     if (strcmp(lower, "bin") == 0) {
         state->mode = MODE_BINARY;
+        printf("bin\n");
         free(inputCopy);
         return true;
     }
@@ -79,6 +155,14 @@ bool processInput(CalculatorState* state, const char* input) {
     /* Command: hex (hexadecimal mode) */
     if (strcmp(lower, "hex") == 0) {
         state->mode = MODE_HEXADECIMAL;
+        printf("hex\n");
+        free(inputCopy);
+        return true;
+    }
+
+    /* Check if input looks like an expression (has arithmetic chars) */
+    if (!looksLikeExpression(trimmed)) {
+        printf("Invalid command \"%s\"!\n", trimmed);
         free(inputCopy);
         return true;
     }
