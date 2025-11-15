@@ -1,5 +1,5 @@
 === Calculator Project Progress ===
-Last Updated: 2025-11-15 (Session 4)
+Last Updated: 2025-11-15 (Session 5)
 
 Completed Tasks
 ---------------
@@ -25,6 +25,9 @@ Completed Tasks
 [✓] Fixed negative exponent support in power function (Session 3)
 [✓] Fixed binary two's complement input parsing (Session 4)
 [✓] Fixed hexadecimal two's complement input parsing (Session 4)
+[✓] Added 'out' command to show current output format (Session 5)
+[✓] Added mode echo when changing formats dec/bin/hex (Session 5)
+[✓] Improved invalid command detection with proper error message (Session 5)
 
 Module Status
 -------------
@@ -268,11 +271,61 @@ Estimated 3-5 hours to completion:
 - Memory leak testing (0.5 hours)
 - Final polish and documentation review (1-1.5 hours)
 
-Project Status: ~95% Complete
+Project Status: ~96% Complete
 ------------------------------
 Core functionality: ✅ COMPLETE
 Basic testing: ✅ COMPLETE
 Complex expression support: ✅ COMPLETE
 Error handling: ✅ COMPLETE
+Command system: ✅ COMPLETE
 
 Remaining: Final testing, cross-platform verification, documentation polish
+
+Session 5 Accomplishments (Current Session)
+--------------------------------------------
+FEATURE: Added 'out' command and improved error message formatting
+
+**New Features Implemented:**
+1. `out` command - Displays current output format (dec/bin/hex)
+2. Mode echo - When changing modes, prints the new mode name
+3. Invalid command detection - Shows `Invalid command "name"!` for unknown commands
+
+**Error Messages Now Match Specification:**
+✅ `Invalid command "command_name"!` - For unknown commands
+✅ `Syntax error!` - For malformed expressions
+✅ `Division by zero!` - For division/modulo by zero
+✅ `Input of factorial must not be negative!` - For negative factorial
+✅ `Invalid input file!` - For file access errors
+
+**Test Results:**
+```
+> some_invalid_command
+Invalid command "some_invalid_command"!
+
+> out
+dec
+
+> bin
+bin
+
+> out
+bin
+
+> 5/0
+Division by zero!
+
+> 0b11100101010011!
+Input of factorial must not be negative!
+```
+
+**Implementation Details:**
+- Added `looksLikeExpression()` to distinguish commands from expressions
+- Expression must contain: operators, digits, or parentheses
+- Text without these is treated as invalid command
+- Added `getModeName()` helper for mode string formatting
+
+**Code Quality:**
+- Maintained ANSI C89 compliance
+- No compiler warnings
+- Proper memory management maintained
+- Clear, documented code
