@@ -72,11 +72,12 @@ static bool isOperatorStackEmpty(OperatorStack* stack) {
 
 /**
  * @brief Gets operator precedence
- * Precedence levels: ! > ^  > * / % > + -
+ * Precedence levels: ! > ~ (unary minus) > ^  > * / % > + -
  */
 int getOperatorPrecedence(char op) {
     switch (op) {
-        case '!': return 4;  /* Highest (postfix) */
+        case '!': return 5;  /* Highest (postfix) */
+        case '~': return 4;  /* Unary minus (prefix) */
         case '^': return 3;  /* Power */
         case '*':
         case '/':
@@ -460,7 +461,7 @@ Token* infixToPostfix(const char* expr) {
                 char topOp = peekOperator(opStack);
                 int topPrec;
 
-                if (topOp == '(' || topOp == '~') break;
+                if (topOp == '(') break;
 
                 topPrec = getOperatorPrecedence(topOp);
 

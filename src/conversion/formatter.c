@@ -228,9 +228,23 @@ char* formatBinary(const BigNum* num) {
         free(binary);
         if (complement == NULL) return NULL;
 
-        /* Remove leading 0s but keep at least one leading 1 */
-        while (complement[0] == '0' && complement[1] == '1') {
-            memmove(complement, complement + 1, strlen(complement));
+        /* Ensure MSB is 1 for negative numbers in two's complement */
+        if (complement[0] == '0') {
+            /* Need to prepend 1 to indicate negative */
+            size_t len = strlen(complement);
+            char* newComp = (char*)malloc(len + 2);
+            if (newComp) {
+                newComp[0] = '1';
+                strcpy(newComp + 1, complement);
+                free(complement);
+                complement = newComp;
+            }
+        } else {
+            /* MSB is already 1, remove redundant leading 1s */
+            /* Can remove '1' bits while next bit is also '1' */
+            while (complement[0] == '1' && complement[1] == '1') {
+                memmove(complement, complement + 1, strlen(complement));
+            }
         }
 
         withPrefix = (char*)malloc(strlen(complement) + 3);
