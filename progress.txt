@@ -423,7 +423,24 @@ None currently identified!
 
 Session 7 Accomplishments (Current Session)
 --------------------------------------------
-COMPREHENSIVE TESTING WITH EXTREME NUMBERS
+COMPREHENSIVE TESTING WITH EXTREME NUMBERS + CRITICAL BUG FIX
+
+**CRITICAL BUG FIX: Two's Complement INPUT Parsing**
+Discovered that Session 6's reversion was WRONG. The reference implementation
+DOES use two's complement for binary/hex INPUT parsing, not just output.
+
+Before fix: `0b1010+0b0101` = 15 (WRONG - treated as unsigned 10+5)
+After fix: `0b1010+0b0101` = -1 (CORRECT - two's complement -6+5)
+
+Key insight: Binary/hex literals interpret MSB as sign bit:
+- `0b1010` (4-bit): MSB=1 → negative → 2-8 = -6
+- `0b0101` (4-bit): MSB=0 → positive → 5
+- `0xf` (4-bit): MSB=1 → negative → 7-8 = -1
+- `0x0f` (8-bit): MSB=0 → positive → 15
+
+Users can express positive values by adding leading 0:
+- `0b1010` = -6, but `0b01010` = 10
+- `0xf` = -1, but `0x0f` = 15
 
 **Test Infrastructure Created:**
 - comprehensive_test.txt: 120+ test cases covering all features
@@ -431,6 +448,8 @@ COMPREHENSIVE TESTING WITH EXTREME NUMBERS
 - extreme_tests.txt: Stress tests with massive numbers
 - edge_cases.txt: Boundary condition tests
 - leak_test_big.txt: Memory leak detection with big numbers
+- twos_complement_test.txt: Two's complement input verification
+- twos_complement_extended.txt: Edge cases for MSB interpretation
 
 **Extreme Number Testing Results:**
 ✅ 100! computed (158 digits)

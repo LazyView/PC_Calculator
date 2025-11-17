@@ -79,14 +79,20 @@ BigNum* parseDecimal(const char* str) {
 }
 
 /**
- * @brief Parses a binary string to BigNum (always unsigned positive)
+ * @brief Parses a binary string to BigNum using two's complement
  *
- * Note: Two's complement is only used for OUTPUT formatting of negative numbers.
- * INPUT is always parsed as unsigned positive value.
- * User writes 0b101 to mean 5, not -3.
+ * Binary literals are interpreted as two's complement numbers:
+ * - If MSB (first bit) is 0: positive number (parse as unsigned)
+ * - If MSB (first bit) is 1: negative number (two's complement)
+ *
+ * Examples:
+ * - 0b0101 = 5 (MSB=0, positive)
+ * - 0b1010 = -6 (MSB=1, two's complement: -8+2=-6)
+ * - 0b1111 = -1 (MSB=1, two's complement: -8+4+2+1=-1)
  */
 BigNum* parseBinary(const char* str) {
     const char* digits;
+    size_t numBits;
 
     if (str == NULL || strlen(str) < 3) return NULL;
 
@@ -100,16 +106,76 @@ BigNum* parseBinary(const char* str) {
     /* Empty after prefix */
     if (*digits == '\0') return NULL;
 
-    /* Parse as unsigned positive number */
-    return binaryToDecimal(digits);
+    numBits = strlen(digits);
+
+    /* Check MSB for two's complement sign */
+    if (digits[0] == '1') {
+        /* MSB is 1: negative number in two's complement
+         * Value = (lower bits as unsigned) - (2^(n-1))
+         * where n is the total number of bits
+         */
+        BigNum* lowerBits;
+        BigNum* msbWeight;
+        BigNum* two;
+        BigNum* result;
+        size_t i;
+
+        /* Calculate MSB weight = 2^(numBits-1) */
+        two = createBigNum("2");
+        if (two == NULL) return NULL;
+
+        msbWeight = createBigNum("1");
+        if (msbWeight == NULL) {
+            destroyBigNum(two);
+            return NULL;
+        }
+
+        for (i = 1; i < numBits; i++) {
+            BigNum* temp = multiply(msbWeight, two);
+            destroyBigNum(msbWeight);
+            if (temp == NULL) {
+                destroyBigNum(two);
+                return NULL;
+            }
+            msbWeight = temp;
+        }
+        destroyBigNum(two);
+
+        /* Parse lower bits (all except MSB) as unsigned */
+        if (numBits == 1) {
+            /* Single bit '1' = -1 */
+            lowerBits = createBigNumZero();
+        } else {
+            lowerBits = binaryToDecimal(digits + 1);
+        }
+        if (lowerBits == NULL) {
+            destroyBigNum(msbWeight);
+            return NULL;
+        }
+
+        /* Result = lowerBits - msbWeight (negative result) */
+        result = subtract(lowerBits, msbWeight);
+        destroyBigNum(lowerBits);
+        destroyBigNum(msbWeight);
+
+        return result;
+    } else {
+        /* MSB is 0: positive number, parse as unsigned */
+        return binaryToDecimal(digits);
+    }
 }
 
 /**
- * @brief Parses a hexadecimal string to BigNum (always unsigned positive)
+ * @brief Parses a hexadecimal string to BigNum using two's complement
  *
- * Note: Two's complement is only used for OUTPUT formatting of negative numbers.
- * INPUT is always parsed as unsigned positive value.
- * User writes 0xf to mean 15, not -1.
+ * Hex literals are interpreted as two's complement numbers:
+ * - If first hex digit < 8 (0-7): MSB=0, positive number
+ * - If first hex digit >= 8 (8-F): MSB=1, negative number
+ *
+ * Examples:
+ * - 0x5 = 5 (first digit=5 < 8, positive)
+ * - 0xf = -1 (first digit=15 >= 8, two's complement: 7-8=-1)
+ * - 0xa = -6 (first digit=10 >= 8, two's complement: 2-8=-6)
  */
 BigNum* parseHexadecimal(const char* str) {
     const char* digits;
@@ -154,9 +220,22 @@ BigNum* parseHexadecimal(const char* str) {
     }
     binary[binLen] = '\0';
 
-    /* Parse as unsigned positive number */
-    result = binaryToDecimal(binary);
-    free(binary);
+    /* Use parseBinary which handles two's complement */
+    /* Need to add "0b" prefix for parseBinary */
+    {
+        char* binaryWithPrefix = (char*)malloc(binLen + 3);
+        if (binaryWithPrefix == NULL) {
+            free(binary);
+            return NULL;
+        }
+        binaryWithPrefix[0] = '0';
+        binaryWithPrefix[1] = 'b';
+        strcpy(binaryWithPrefix + 2, binary);
+        free(binary);
+
+        result = parseBinary(binaryWithPrefix);
+        free(binaryWithPrefix);
+    }
 
     return result;
 }
