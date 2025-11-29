@@ -4,7 +4,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c89
 LDFLAGS =
-TARGET = calc
+TARGET = calc.exe
 
 # Source files (all in root directory)
 SRCS = bignum.c bignum_ops.c bignum_math.c \
