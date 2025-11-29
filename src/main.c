@@ -3,7 +3,7 @@
  * @brief Main entry point for the calculator application
  */
 
-#include "../include/app/calculator.h"
+#include "calculator.h"
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -3,9 +3,9 @@
  * @brief Implementation of advanced mathematical operations
  */
 
-#include "../../include/core/bignum_math.h"
-#include "../../include/core/bignum_ops.h"
-#include "../../include/core/bignum.h"
+#include "bignum_math.h"
+#include "bignum_ops.h"
+#include "bignum.h"
 #include <stdlib.h>
 
 /**

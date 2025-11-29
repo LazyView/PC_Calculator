@@ -2,14 +2,13 @@
 # ANSI C compliant
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c89 -Iinclude
+CFLAGS = -Wall -Wextra -pedantic -std=c89 -I.
 LDFLAGS =
 TARGET = calc
 
 # Directories
 SRC_DIR = src
 BUILD_DIR = build
-INCLUDE_DIR = include
 
 # Source files by module
 CORE_SRCS = $(SRC_DIR)/core/bignum.c \
@@ -59,13 +58,13 @@ clean:
 .PHONY: all clean
 
 # Dependencies (header files)
-$(BUILD_DIR)/core/bignum.o: $(INCLUDE_DIR)/core/bignum.h $(INCLUDE_DIR)/app/utils.h
-$(BUILD_DIR)/core/bignum_ops.o: $(INCLUDE_DIR)/core/bignum_ops.h $(INCLUDE_DIR)/core/bignum.h
-$(BUILD_DIR)/core/bignum_math.o: $(INCLUDE_DIR)/core/bignum_math.h $(INCLUDE_DIR)/core/bignum.h $(INCLUDE_DIR)/core/bignum_ops.h
-$(BUILD_DIR)/conversion/converter.o: $(INCLUDE_DIR)/conversion/converter.h $(INCLUDE_DIR)/core/bignum.h $(INCLUDE_DIR)/app/utils.h
-$(BUILD_DIR)/conversion/formatter.o: $(INCLUDE_DIR)/conversion/formatter.h $(INCLUDE_DIR)/core/bignum.h $(INCLUDE_DIR)/app/utils.h
-$(BUILD_DIR)/expression/parser.o: $(INCLUDE_DIR)/expression/parser.h $(INCLUDE_DIR)/app/utils.h
-$(BUILD_DIR)/expression/evaluator.o: $(INCLUDE_DIR)/expression/evaluator.h $(INCLUDE_DIR)/expression/parser.h $(INCLUDE_DIR)/core/bignum.h $(INCLUDE_DIR)/core/bignum_ops.h $(INCLUDE_DIR)/core/bignum_math.h $(INCLUDE_DIR)/conversion/converter.h
-$(BUILD_DIR)/app/calculator.o: $(INCLUDE_DIR)/app/calculator.h $(INCLUDE_DIR)/app/utils.h $(INCLUDE_DIR)/expression/parser.h $(INCLUDE_DIR)/expression/evaluator.h $(INCLUDE_DIR)/conversion/formatter.h
-$(BUILD_DIR)/app/utils.o: $(INCLUDE_DIR)/app/utils.h
-$(BUILD_DIR)/main.o: $(INCLUDE_DIR)/app/calculator.h
+$(BUILD_DIR)/core/bignum.o: bignum.h utils.h
+$(BUILD_DIR)/core/bignum_ops.o: bignum_ops.h bignum.h
+$(BUILD_DIR)/core/bignum_math.o: bignum_math.h bignum.h bignum_ops.h
+$(BUILD_DIR)/conversion/converter.o: converter.h bignum.h utils.h
+$(BUILD_DIR)/conversion/formatter.o: formatter.h bignum.h utils.h
+$(BUILD_DIR)/expression/parser.o: parser.h utils.h
+$(BUILD_DIR)/expression/evaluator.o: evaluator.h parser.h bignum.h bignum_ops.h bignum_math.h converter.h
+$(BUILD_DIR)/app/calculator.o: calculator.h utils.h parser.h evaluator.h formatter.h
+$(BUILD_DIR)/app/utils.o: utils.h
+$(BUILD_DIR)/main.o: calculator.h

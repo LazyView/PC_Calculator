@@ -3,9 +3,9 @@
  * @brief Implementation of basic arithmetic operations
  */
 
-#include "../../include/core/bignum_ops.h"
-#include "../../include/core/bignum.h"
-#include "../../include/app/utils.h"
+#include "bignum_ops.h"
+#include "bignum.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <string.h>
 

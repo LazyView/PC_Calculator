@@ -3,9 +3,9 @@
  * @brief Implementation of expression parsing with Shunting Yard algorithm
  */
 
-#include "../../include/expression/parser.h"
-#include "../../include/conversion/converter.h"
-#include "../../include/app/utils.h"
+#include "parser.h"
+#include "converter.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

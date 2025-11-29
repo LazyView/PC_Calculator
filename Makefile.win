@@ -3,14 +3,13 @@
 # Use with MinGW: mingw32-make -f Makefile.win
 
 CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c89 -Iinclude
+CFLAGS = -Wall -Wextra -pedantic -std=c89 -I.
 LDFLAGS =
 TARGET = calc.exe
 
 # Directories
 SRC_DIR = src
 BUILD_DIR = build
-INCLUDE_DIR = include
 
 # Source files by module
 CORE_SRCS = $(SRC_DIR)/core/bignum.c \
