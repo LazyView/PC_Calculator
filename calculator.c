@@ -230,6 +230,10 @@ void runInteractiveMode(void) {
 
     shouldContinue = true;
     while (shouldContinue) {
+        /* Print prompt */
+        printf("> ");
+        fflush(stdout);  /* Ensure prompt appears before input */
+
         /* Read line from stdin */
         line = readLine();
         if (line == NULL) {
@@ -275,6 +279,10 @@ bool runFileMode(const char* filename) {
     /* Process each line */
     shouldContinue = true;
     for (i = 0; i < lineCount && shouldContinue; i++) {
+        /* Print prompt and echo the input line */
+        printf("> %s\n", lines[i]);
+
+        /* Process the input and print output */
         shouldContinue = processInput(state, lines[i]);
     }
 
