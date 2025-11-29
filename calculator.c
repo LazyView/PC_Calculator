@@ -261,8 +261,7 @@ bool runFileMode(const char* filename) {
     /* Read all lines from file */
     lines = readFile(filename, &lineCount);
     if (lines == NULL) {
-        printf("Invalid input file!\n");
-        return false;
+        return false;  /* main.c will print error message */
     }
 
     /* Initialize calculator */
