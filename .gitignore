@@ -14,3 +14,6 @@ calc
 # OS files
 .DS_Store
 Thumbs.db
+/pc_release/
+/temp/
+/progress.txt

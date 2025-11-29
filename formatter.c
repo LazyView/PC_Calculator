@@ -50,14 +50,6 @@ static char* decimalToBinary(const BigNum* num) {
 
     /* Repeatedly divide by 2, collecting remainders */
     while (!isZero(current)) {
-        /* Safety limit: prevent excessive iterations (max ~1 million bits) */
-        if (length >= 1000000) {
-            free(binary);
-            destroyBigNum(current);
-            destroyBigNum(two);
-            return NULL;
-        }
-
         /* Grow buffer if needed */
         if (length + 1 >= capacity) {
             char* newBinary;
