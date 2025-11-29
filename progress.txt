@@ -793,3 +793,65 @@ Invalid input file!
 ✅ Exit code correct (1 for error, 0 for success)
 ✅ Valid file input still works correctly
 ✅ Ready for automated testing resubmission
+
+---
+
+**FOLLOW-UP FIX: Add Prompt and Input Echo**
+
+**Problem Identified:**
+- Output was missing the `> ` prompt before each input line
+- Input lines were not being echoed before their outputs
+- Expected format: `> input` followed by output on next line
+- Actual format: Just output without prompt or echo
+
+**Root Cause:**
+- runFileMode() processed lines without printing prompt or echo
+- runInteractiveMode() read input without displaying prompt first
+- Specification requires visible prompts and input echo for all modes
+
+**Solution Implemented:**
+File Mode (calculator.c:278-282):
+- Added `printf("> %s\n", lines[i]);` before processing each line
+- Prints prompt `> ` followed by the input line
+- Then processes input and prints output
+
+Interactive Mode (calculator.c:233-235):
+- Added `printf("> ");` before reading input
+- Added `fflush(stdout);` to ensure prompt appears immediately
+- User types input after the prompt
+
+**Test Results:**
+```
+$ ./calc.exe test_prompt.txt
+> bin
+bin
+> -7
+0b1001
+> -6
+0b1010
+...
+> hex
+hex
+> -7
+0x9
+> -6
+0xa
+...
+```
+
+**Files Modified:**
+- calculator.c: Added prompt printing to both interactive and file modes
+
+**Commits:**
+- "Add prompt and input echo for proper output formatting"
+
+**Code Quality:**
+- Maintains ANSI C89 compliance
+- Clean implementation with clear comments
+- Proper formatting matches specification exactly
+
+**Result:**
+✅ File mode now shows `> input` before each output
+✅ Interactive mode displays `> ` prompt before reading
+✅ Output format matches expected specification exactly
+✅ Ready for automated testing resubmission
