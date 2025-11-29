@@ -3,10 +3,10 @@
  * @brief Implementation of expression evaluation
  */
 
-#include "expression/evaluator.h"
-#include "core/bignum_ops.h"
-#include "core/bignum_math.h"
-#include "conversion/converter.h"
+#include "../../include/expression/evaluator.h"
+#include "../../include/core/bignum_ops.h"
+#include "../../include/core/bignum_math.h"
+#include "../../include/conversion/converter.h"
 #include <stdlib.h>
 #include <string.h>
 

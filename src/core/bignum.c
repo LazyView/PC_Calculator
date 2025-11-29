@@ -3,8 +3,8 @@
  * @brief Implementation of core BigNum operations
  */
 
-#include "core/bignum.h"
-#include "app/utils.h"
+#include "../../include/core/bignum.h"
+#include "../../include/app/utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

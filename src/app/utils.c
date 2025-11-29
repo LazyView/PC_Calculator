@@ -3,7 +3,7 @@
  * @brief Implementation of utility functions
  */
 
-#include "app/utils.h"
+#include "../../include/app/utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

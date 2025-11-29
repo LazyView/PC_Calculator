@@ -3,9 +3,9 @@
  * @brief Implementation of input format parsing with two's complement
  */
 
-#include "conversion/converter.h"
-#include "core/bignum_ops.h"
-#include "app/utils.h"
+#include "../../include/conversion/converter.h"
+#include "../../include/core/bignum_ops.h"
+#include "../../include/app/utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>

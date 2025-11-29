@@ -3,11 +3,11 @@
  * @brief Implementation of calculator application logic
  */
 
-#include "app/calculator.h"
-#include "app/utils.h"
-#include "expression/parser.h"
-#include "expression/evaluator.h"
-#include "conversion/formatter.h"
+#include "../../include/app/calculator.h"
+#include "../../include/app/utils.h"
+#include "../../include/expression/parser.h"
+#include "../../include/expression/evaluator.h"
+#include "../../include/conversion/formatter.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

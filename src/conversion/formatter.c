@@ -3,9 +3,9 @@
  * @brief Implementation of output formatting with two's complement
  */
 
-#include "conversion/formatter.h"
-#include "core/bignum_ops.h"
-#include "app/utils.h"
+#include "../../include/conversion/formatter.h"
+#include "../../include/core/bignum_ops.h"
+#include "../../include/app/utils.h"
 #include <stdlib.h>
 #include <string.h>
 
