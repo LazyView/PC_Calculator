@@ -116,7 +116,7 @@ bool validateExpression(const char* expr) {
 
     while (*p != '\0') {
         /* Skip whitespace */
-        if (isspace(*p)) {
+        if (isspace((unsigned char)*p)) {
             p++;
             continue;
         }
@@ -209,7 +209,7 @@ static Token* tokenizeExpression(const char* expr, int* tokenCount) {
 
     while (*p != '\0') {
         /* Skip whitespace */
-        if (isspace(*p)) {
+        if (isspace((unsigned char)*p)) {
             p++;
             continue;
         }
