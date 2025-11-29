@@ -731,3 +731,65 @@ $ echo "2+3" | ./calc.exe
 ✅ Executable name now matches test system expectations
 ✅ Should resolve "test cannot continue" error
 ✅ Ready for resubmission to automated testing
+
+---
+
+**FOLLOW-UP FIX: Duplicate Error Message**
+
+**Problem Identified:**
+- "Invalid input file!" was being printed twice
+- Test output showed two identical error lines instead of one
+- User experience: confusing and unprofessional
+
+**Root Cause:**
+- calculator.c:264 - runFileMode() printed the error message
+- main.c:24 - main() also printed the error message after runFileMode() failed
+- Error handling responsibility was duplicated across both functions
+
+**Solution Implemented:**
+- Removed printf from calculator.c:264 in runFileMode()
+- Keep error message printing in main.c only
+- runFileMode() now just returns false to indicate failure
+- Clear separation of concerns: logic vs. user communication
+
+**Test Results:**
+```
+$ ./calc.exe nonexistent_file.txt
+Invalid input file!
+$ echo $?
+1
+
+$ echo "2+3" > test.txt && ./calc.exe test.txt
+5
+$ echo $?
+0
+```
+
+**Before Fix:**
+```
+Invalid input file!
+Invalid input file!
+```
+
+**After Fix:**
+```
+Invalid input file!
+```
+
+**Files Modified:**
+- calculator.c: Removed duplicate printf, added clarifying comment
+
+**Commits:**
+- "Fix duplicate 'Invalid input file!' error message"
+
+**Code Quality:**
+- Cleaner error handling architecture
+- Single Responsibility Principle upheld
+- Better separation between business logic and UI
+- All tests still pass
+
+**Result:**
+✅ Error message now prints exactly once
+✅ Exit code correct (1 for error, 0 for success)
+✅ Valid file input still works correctly
+✅ Ready for automated testing resubmission
