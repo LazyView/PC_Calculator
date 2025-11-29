@@ -163,15 +163,22 @@ bool validateExpression(const char* expr) {
         /* Number (decimal, binary, hex) */
         if (isDigitChar(*p) ||
             (*p == '0' && (*(p+1) == 'b' || *(p+1) == 'B' || *(p+1) == 'x' || *(p+1) == 'X'))) {
+            const char* numStart;
             if (!expectOperand) return false;
 
             /* Skip the entire number */
             if (*p == '0' && (*(p+1) == 'b' || *(p+1) == 'B')) {
                 p += 2;
+                numStart = p;
                 while (*p == '0' || *p == '1') p++;
+                /* Binary number must have at least one digit after 0b */
+                if (p == numStart) return false;
             } else if (*p == '0' && (*(p+1) == 'x' || *(p+1) == 'X')) {
                 p += 2;
+                numStart = p;
                 while (isHexDigitChar(*p)) p++;
+                /* Hex number must have at least one digit after 0x */
+                if (p == numStart) return false;
             } else {
                 while (isDigitChar(*p)) p++;
             }
@@ -333,15 +340,36 @@ static Token* tokenizeExpression(const char* expr, int* tokenCount) {
         if (isDigitChar(*p) ||
             (*p == '0' && (*(p+1) == 'b' || *(p+1) == 'B' || *(p+1) == 'x' || *(p+1) == 'X'))) {
             const char* start = p;
+            const char* digitStart;
             size_t len;
 
             /* Scan the entire number */
             if (*p == '0' && (*(p+1) == 'b' || *(p+1) == 'B')) {
                 p += 2;
+                digitStart = p;
                 while (*p == '0' || *p == '1') p++;
+                /* Must have at least one binary digit (should be caught by validator) */
+                if (p == digitStart) {
+                    int i;
+                    for (i = 0; i < count; i++) {
+                        free(tokens[i].value);
+                    }
+                    free(tokens);
+                    return NULL;
+                }
             } else if (*p == '0' && (*(p+1) == 'x' || *(p+1) == 'X')) {
                 p += 2;
+                digitStart = p;
                 while (isHexDigitChar(*p)) p++;
+                /* Must have at least one hex digit (should be caught by validator) */
+                if (p == digitStart) {
+                    int i;
+                    for (i = 0; i < count; i++) {
+                        free(tokens[i].value);
+                    }
+                    free(tokens);
+                    return NULL;
+                }
             } else {
                 while (isDigitChar(*p)) p++;
             }
