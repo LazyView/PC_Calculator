@@ -683,3 +683,51 @@ OBJS = $(SRCS:.c=.o)
 - ✅ All functionality works
 - ✅ Identical to reference implementation structure
 - ✅ Maximum simplicity achieved
+
+Session 9 Accomplishments (Current Session)
+--------------------------------------------
+CRITICAL FIX: Executable Name for Test System Compatibility
+
+**Problem Identified:**
+- Automated test system expects executable named "calc.exe"
+- Linux Makefile was creating "calc" (no .exe extension)
+- Windows Makefile.win correctly created "calc.exe"
+- Test output showed: "Tool 'make' did not create executable file 'calc.exe'"
+
+**Root Cause:**
+- Makefile line 7: TARGET = calc
+- Makefile.win line 8: TARGET = calc.exe
+- Test system is platform-agnostic and always expects .exe extension
+
+**Solution Implemented:**
+- Updated Linux Makefile to use TARGET = calc.exe
+- Now both Makefiles create the same executable name
+- Ensures test system can find and execute the program
+
+**Verification:**
+```
+$ make clean && make
+...
+gcc bignum.o ... main.o -o calc.exe
+$ ls -lh calc.exe
+-rwxr-xr-x 1 root root 48K Nov 29 12:31 calc.exe
+$ echo "2+3" | ./calc.exe
+5
+```
+
+**Files Modified:**
+- Makefile: Changed TARGET from "calc" to "calc.exe"
+
+**Commits:**
+- "Fix Makefile to create calc.exe for test system compatibility"
+
+**Code Quality:**
+- No functional changes to code
+- Simple one-line fix
+- Maintains cross-platform compatibility
+- Both Makefiles now consistent
+
+**Result:**
+✅ Executable name now matches test system expectations
+✅ Should resolve "test cannot continue" error
+✅ Ready for resubmission to automated testing
