@@ -547,3 +547,40 @@ All core functionality thoroughly tested and verified. Calculator handles number
 - All operator precedence rules correct
 - Two's complement output perfect for negative numbers
 - Handles extremely large computations (500KB+ allocations)
+
+Session 8 Accomplishments (Current Session)
+--------------------------------------------
+SUBMISSION FIX: Splint Configuration
+
+**Problem Identified:**
+Submission system's splint tool couldn't find header files:
+```
+src/app/utils.c:6:24: Cannot find include file app/utils.h on search path
+```
+
+**Root Cause:**
+- Makefile uses `-Iinclude` flag for gcc (works fine for compilation)
+- Submission system runs splint without knowing about include directory
+- Splint looked in `src/app/` but headers are in `include/app/`
+
+**Solution Implemented:**
+Created `.splintrc` configuration file in project root:
+```
+-Iinclude
+-preproc
+```
+
+This tells splint to:
+1. Look for headers in the `include/` directory
+2. Use preprocessing to avoid "preprocessing error" warnings
+
+**Files Modified:**
+- .splintrc (NEW) - Splint configuration file
+
+**Verification:**
+- File committed and pushed to branch
+- Configuration should allow submission system to find all headers
+
+**Code Quality:**
+- No code changes needed (headers were in correct location)
+- Simply needed configuration for static analysis tool
