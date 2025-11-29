@@ -7,6 +7,7 @@
 #include "bignum_ops.h"
 #include "bignum.h"
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * @brief Raises a BigNum to a power
@@ -154,6 +155,14 @@ BigNum* power(const BigNum* base, const BigNum* exponent) {
             destroyBigNum(result);
             result = temp;
             if (result == NULL) {
+                destroyBigNum(currentBase);
+                destroyBigNum(currentExp);
+                destroyBigNum(two);
+                return NULL;
+            }
+            /* Safety limit: prevent astronomical results */
+            if (strlen(result->digits) > 10000) {
+                destroyBigNum(result);
                 destroyBigNum(currentBase);
                 destroyBigNum(currentExp);
                 destroyBigNum(two);
