@@ -949,3 +949,103 @@ isn't being detected. The safety limit prevents timeout but underlying
 issue (parser not catching specific syntax error OR expression evaluating
 to huge number) may still need investigation if test continues to fail.
 Automated testing will reveal which scenario applies.
+
+---
+
+**Session 10 Part 2: CRITICAL FIX - Parser Syntax Validation**
+
+**Problem Re-Analyzed:**
+User correctly identified the real issue: **Parser was not catching syntax errors!**
+- The infinite loop was a symptom, not the root cause
+- Parser accepted malformed input like "0b" or "0x" without digits
+- These malformed tokens reached the converter/evaluator
+- Caused undefined behavior leading to timeouts
+
+**Root Cause:**
+Parser validation in validateExpression() and tokenizeExpression():
+```c
+if (*p == '0' && (*(p+1) == 'b' || *(p+1) == 'B')) {
+    p += 2;
+    while (*p == '0' || *p == '1') p++;  // Could skip 0 times!
+    // No check if any digits were consumed!
+}
+```
+
+**Critical Bug:**
+- Input "0b" → p += 2, while loop skips 0 iterations, accepted as valid!
+- Input "0b999" → p += 2, while loop skips 0 iterations, '9' left unparsed
+- Input "0xg" → p += 2, while loop skips 0 iterations, 'g' left unparsed
+
+**Solution Implemented:**
+Added validation in BOTH validator and tokenizer (parser.c):
+
+1. **validateExpression()** (lines 169-181):
+   ```c
+   const char* numStart;
+   p += 2;
+   numStart = p;
+   while (*p == '0' || *p == '1') p++;
+   if (p == numStart) return false;  // No digits after 0b!
+   ```
+
+2. **tokenizeExpression()** (lines 346-372):
+   - Same check with proper error cleanup (free all tokens)
+   - Prevents malformed tokens like "0b" from being created
+
+**Specification Reference:**
+From sw2025-03.pdf page 2:
+- Binary numbers: prefix "0b" followed by binary digits (0 or 1)
+- Hex numbers: prefix "0x" followed by hex digits (0-9, a-f, A-F)
+- **Implication: Prefix MUST be followed by at least one valid digit**
+
+**Test Results:**
+```
+$ echo "0b" | ./calc.exe
+> Syntax error!  ✅
+
+$ echo "0x" | ./calc.exe
+> Syntax error!  ✅
+
+$ echo "0b999" | ./calc.exe
+> Syntax error!  ✅
+
+$ echo -e "2+3\n0b101\n0xff" | ./calc.exe
+> 5
+> -3
+> -1  ✅ (all valid inputs still work)
+```
+
+**Additional Safety Measure:**
+Added 10,000 digit limit in power() function (bignum_math.c:163):
+- Prevents expressions like 9^9^9 from creating astronomical numbers
+- Allows reasonable computations (e.g., 2^1000 = 302 digits)
+- Returns NULL if limit exceeded → "Memory allocation error!" message
+
+**Files Modified:**
+- parser.c: Fixed validateExpression() and tokenizeExpression()
+- bignum_math.c: Added safety limit, included string.h
+- formatter.c: Already had 1 million bit limit (Session 10 Part 1)
+
+**Commits:**
+- "Fix syntax validation for binary and hex number literals"
+- "Add safety limit to power function and include string.h"
+
+**Code Quality:**
+- Maintains ANSI C89 compliance
+- Proper error handling and cleanup
+- No compiler warnings
+- Clear comments explaining validation logic
+
+**Result:**
+✅ Parser now correctly rejects malformed number literals
+✅ Prevents undefined behavior from reaching converter
+✅ Syntax errors caught early with proper error message
+✅ All valid inputs still work correctly
+✅ Safety limits prevent timeout on huge computations
+✅ Ready for automated testing resubmission
+
+**Key Insight:**
+The user was absolutely correct - the problem was syntax validation, not
+just formatting. Fixing the parser validation is the proper solution that
+prevents the issue at its source, rather than just adding safety limits
+to handle the symptoms.
